@@ -1,0 +1,7 @@
+@import "~tailwindcss/base";
+@import "~tailwindcss/components";
+@import "~tailwindcss/utilities";
+
+body {
+    @apply antialiased text-gray-200 bg-gray-300;
+}
