@@ -39,12 +39,6 @@ const Login: NextPage<Props> = () => {
         },
     })
 
-    const handleLogin = useCallback(async (data: LoginFormData) => {
-        await login(data, (error) => {
-            setErrorMessage(error)
-        })
-    }, [login])
-
     return (
         <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -82,7 +76,7 @@ const Login: NextPage<Props> = () => {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit(handleLogin)} className="space-y-6" action="#" method="POST">
+                    <form onSubmit={handleSubmit(login)} className="space-y-6" action="#" method="POST">
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                 Email address

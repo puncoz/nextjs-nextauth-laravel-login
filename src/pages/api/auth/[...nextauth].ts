@@ -1,4 +1,6 @@
-import NextAuth, { CallbacksOptions, NextAuthOptions } from "next-auth"
+import { LoginFormData } from "@/formdata/LoginFormData"
+import Api from "@/utils/Api"
+import NextAuth, { CallbacksOptions, NextAuthOptions, User } from "next-auth"
 import { Provider } from "next-auth/providers"
 import CredentialsProvider from "next-auth/providers/credentials"
 
@@ -8,31 +10,28 @@ const providers: Provider[] = [
             email: {},
             password: {},
         },
+
         authorize: async (credentials) => {
-            console.log(credentials, "credentials")
-            const loginUrl = `${process.env.NEXT_PUBLIC_API_URL}/login`
-            const res = await fetch(loginUrl, {
-                method: "POST",
-                body: JSON.stringify(credentials),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            })
+            const api = new Api()
 
-            const user = await res.json()
+            try {
+                const { body: { payload: user } } = await api.post<LoginFormData, User>("/login", credentials)
 
-            if (res.ok && user) {
-                return user.payload
+                if (!user) {
+                    return null
+                }
+
+                return user
+            } catch (e) {
+                return null
             }
-
-            return null
         },
     }),
 ]
 
 const callbacks: Partial<CallbacksOptions> = {
     jwt: async ({ token, account, user }) => {
-        // Persist the OAuth access_token to the token right after signin
+        // Persist the access_token and user to the token right after signin
         if (user) {
             token.user = user.user
             token.accessToken = user.token
@@ -43,7 +42,6 @@ const callbacks: Partial<CallbacksOptions> = {
 
     session: async ({ session, token, user }) => {
         // Send properties to the client, like an access_token from a provider.
-        console.log(token, user, "token session")
         session.accessToken = token.accessToken
         session.user = token.user
 

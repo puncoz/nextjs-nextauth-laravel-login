@@ -1,4 +1,4 @@
-import { IAppConfig } from "@/types/IAppConfig"
+import { IAppConfig } from "@/types/config/IAppConfig"
 
 export const AppConfig: IAppConfig = {
     title: "EverSpeaker",
