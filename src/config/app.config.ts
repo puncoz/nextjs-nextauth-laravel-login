@@ -1,13 +1,14 @@
 import { IAppConfig } from "@/types/IAppConfig"
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://localhost:3000"
-
 export const AppConfig: IAppConfig = {
     title: "EverSpeaker",
-    url: siteUrl,
     description: "EverSpeaker is a marketplace for speakers.",
     keywords: ["speakers", "marketplace", "web", "application"],
-    previewImage: `${siteUrl}/static/img/preview.png`,
+    previewImage: `/static/img/preview.png`,
 
     locale: "en",
+
+    baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "localhost:3000",
+    apiUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+    isSecure: Boolean((process.env.NEXT_PUBLIC_SECURE || "true") === "true"),
 }
