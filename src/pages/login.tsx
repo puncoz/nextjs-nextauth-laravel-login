@@ -3,8 +3,7 @@ import useAuth from "@/hooks/useAuth"
 import { ExclamationCircleIcon, XIcon } from "@heroicons/react/solid"
 import { classValidatorResolver } from "@hookform/resolvers/class-validator"
 import { NextPage } from "next"
-import { useRouter } from "next/router"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 type Props = {}
@@ -13,23 +12,6 @@ const Login: NextPage<Props> = () => {
     const [errorMessage, setErrorMessage] = useState<string>("")
 
     const { login, loading } = useAuth()
-    const router = useRouter()
-
-    const parseError = useCallback((errorCode: string) => {
-        return {
-            "CredentialsSignin": "Invalid Login",
-            "Configuration": "There is a problem with the server configuration.",
-            "AccessDenied": "Usually occurs, when you restricted access through the signIn callback, or redirect callback",
-            "Verification": "Related to the Email provider. The token has expired or has already been used",
-            "Default": "Unknown error",
-        }[errorCode] || "Unknown error"
-    }, [])
-
-    useEffect(() => {
-        if (router.query.error) {
-            setErrorMessage(parseError(router.query.error as string))
-        }
-    }, [parseError, router.query.error])
 
     const { control, formState: { errors }, handleSubmit } = useForm<LoginFormData>({
         resolver: classValidatorResolver(LoginFormData),
@@ -38,6 +20,12 @@ const Login: NextPage<Props> = () => {
             password: "password123",
         },
     })
+
+    const handleLogin = useCallback(async (data: LoginFormData) => {
+        await login(data, (error: string) => {
+            setErrorMessage(error)
+        })
+    }, [login])
 
     return (
         <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -76,7 +64,7 @@ const Login: NextPage<Props> = () => {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit(login)} className="space-y-6" action="#" method="POST">
+                    <form onSubmit={handleSubmit(handleLogin)} className="space-y-6" action="#" method="POST">
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                 Email address
@@ -127,7 +115,7 @@ const Login: NextPage<Props> = () => {
                                                 rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600
                                                 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2
                                                 focus:ring-indigo-500">
-                                Sign in
+                                {loading ? "Loading..." : "Sign in"}
                             </button>
                         </div>
                     </form>

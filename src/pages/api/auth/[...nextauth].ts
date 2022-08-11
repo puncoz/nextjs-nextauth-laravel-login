@@ -1,5 +1,6 @@
 import { LoginFormData } from "@/formdata/LoginFormData"
 import Api from "@/utils/Api"
+import { AxiosError } from "axios"
 import NextAuth, { CallbacksOptions, NextAuthOptions, User } from "next-auth"
 import { Provider } from "next-auth/providers"
 import CredentialsProvider from "next-auth/providers/credentials"
@@ -23,7 +24,11 @@ const providers: Provider[] = [
 
                 return user
             } catch (e) {
-                return null
+                if (e instanceof AxiosError) {
+                    throw new Error(e.response?.data.message)
+                }
+
+                throw e
             }
         },
     }),
@@ -52,6 +57,18 @@ const callbacks: Partial<CallbacksOptions> = {
 const options: NextAuthOptions = {
     providers,
     callbacks,
+
+    debug: false,
+
+    secret: process.env.NEXTAUTH_SECRET,
+
+    session: {
+        strategy: "jwt",
+    },
+
+    jwt: {
+        secret: process.env.NEXTAUTH_SECRET,
+    },
 
     pages: {
         signIn: "/login",
