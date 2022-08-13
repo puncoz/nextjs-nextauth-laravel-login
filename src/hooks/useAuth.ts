@@ -1,11 +1,16 @@
+import { AppConfig } from "@/config/app.config"
 import { LoginFormData } from "@/formdata/LoginFormData"
-import { signIn } from "next-auth/react"
+import { signIn, signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/router"
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 
-const useAuth = () => {
+const useAuth = (token?: string) => {
     const [loading, setLoading] = useState<boolean>(false)
+
     const router = useRouter()
+    const { data: session, status } = useSession()
+
+    const isAuthenticated = useMemo(() => status === "authenticated", [status])
 
     const login = useCallback(async (credentials: LoginFormData, onError: Function) => {
         setLoading(true)
@@ -17,16 +22,22 @@ const useAuth = () => {
         })
 
         if (res?.ok) {
-            await router.push("/")
+            await router.push(AppConfig.authenticatedRoute)
         }
 
         setLoading(false)
         onError(res?.error)
     }, [router])
 
+    const logout = useCallback(async () => {
+        await signOut({ callbackUrl: AppConfig.unAuthenticatedRoute })
+    }, [])
+
     return {
-        loading,
+        loading: loading || status === "loading",
+        isAuthenticated,
         login,
+        logout,
     }
 }
 

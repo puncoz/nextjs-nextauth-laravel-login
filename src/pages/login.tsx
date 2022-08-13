@@ -1,8 +1,12 @@
+import { AppConfig } from "@/config/app.config"
 import { LoginFormData } from "@/formdata/LoginFormData"
 import useAuth from "@/hooks/useAuth"
+import { options as authOptions } from "@/pages/api/auth/[...nextauth]"
+import { siteUrl } from "@/utils/helpers"
 import { ExclamationCircleIcon, XIcon } from "@heroicons/react/solid"
 import { classValidatorResolver } from "@hookform/resolvers/class-validator"
-import { NextPage } from "next"
+import { GetServerSideProps, NextPage } from "next"
+import { unstable_getServerSession } from "next-auth"
 import { useCallback, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
@@ -15,10 +19,6 @@ const Login: NextPage<Props> = () => {
 
     const { control, formState: { errors }, handleSubmit } = useForm<LoginFormData>({
         resolver: classValidatorResolver(LoginFormData),
-        defaultValues: {
-            email: "nirajan.basnet@webo.digital",
-            password: "password123",
-        },
     })
 
     const handleLogin = useCallback(async (data: LoginFormData) => {
@@ -122,8 +122,24 @@ const Login: NextPage<Props> = () => {
                 </div>
             </div>
         </div>
-
     )
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    const session = await unstable_getServerSession(req, res, authOptions)
+
+    if (session) {
+        return {
+            redirect: {
+                destination: siteUrl(AppConfig.authenticatedRoute),
+                permanent: true,
+            },
+        }
+    }
+
+    return {
+        props: {},
+    }
 }
 
 export default Login

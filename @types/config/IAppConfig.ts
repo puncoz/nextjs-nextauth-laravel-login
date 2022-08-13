@@ -11,4 +11,7 @@ export interface IAppConfig {
     baseUrl: string
     apiUrl: string
     isSecure: boolean
+
+    authenticatedRoute: string
+    unAuthenticatedRoute: string
 }

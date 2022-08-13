@@ -54,7 +54,7 @@ const callbacks: Partial<CallbacksOptions> = {
     },
 }
 
-const options: NextAuthOptions = {
+export const options: NextAuthOptions = {
     providers,
     callbacks,
 

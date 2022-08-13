@@ -11,4 +11,7 @@ export const AppConfig: IAppConfig = {
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "localhost:3000",
     apiUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
     isSecure: Boolean((process.env.NEXT_PUBLIC_SECURE || "true") === "true"),
+
+    authenticatedRoute: "/profile",
+    unAuthenticatedRoute: "/login",
 }

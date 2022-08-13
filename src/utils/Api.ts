@@ -11,7 +11,6 @@ export const Http = axios.create({
         "Content-Type": "application/json",
         "Accept": "application/json",
     },
-    withCredentials: true,
 })
 
 class Api {
@@ -25,6 +24,8 @@ class Api {
 
     constructor(token?: string) {
         this.token = token
+
+        this.tokenInterceptor()
     }
 
     async get<T>(
@@ -150,6 +151,23 @@ class Api {
 
     private cacheKey(endpoint: string, params?: AxiosRequestConfig["params"]): string {
         return encodeURIComponent(endpoint + JSON.stringify(params))
+    }
+
+    private tokenInterceptor() {
+        Http.interceptors.request.use(
+            (config: AxiosRequestConfig) => {
+                if (this.token) {
+                    Http.defaults.headers.common["Authorization"] = `Bearer ${this.token}`
+
+                    if (config.headers) {
+                        config.headers["Authorization"] = `Bearer ${this.token}`
+                    }
+                }
+
+                return config
+            },
+            (error: AxiosError) => Promise.reject(error),
+        )
     }
 }
 
